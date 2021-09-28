@@ -1,0 +1,321 @@
+#+TITLE: DOOM EMACS CONFIG
+#+AUTHOR: Chaitanya Afle
+
+* PREAMBLE
+#+begin_quote
+Emacs outshines all other editing software in approximately the same way that the noonday sun does the stars. It is not just bigger and brighter; it simply makes everything else vanish. – Neal Stephenson, In the Beginning was the Command Line (1998)
+#+end_quote
+
+
+This is the the literate Doom Emacs configuration file. Doom Emacs and its installation instructions can be found [[https://github.com/hlissner/doom-emacs][here]]. My personal configuration file is made by using (more than just) tidbits from the following configurations:
+- [[https://github.com/sunnyhasija/Academic-Doom-Emacs-Config][Sunny Hasija's Literate Doom Emacs configuration]]
+- [[https://github.com/dangirsh/.doom.d/blob/master/README.org][Dan Girshovich's "doom-config"]]
+- [[https://github.com/floscr/emacs.d/blob/master/config.org][Florian Schrödl's Doom Emacs configuration]]
+- [[https://tecosaur.github.io/emacs-config/config.html#package-loading][Tecosaur's literate config]]
+- [[https://zzamboni.org/post/my-doom-emacs-configuration-with-commentary/][Diego Zamboni’s "My Doom Emacs configuration, with commentary"]]
+- Zaiste's "Doomcasts"
+- System Crafter's "Emacs from Scratch"
+
+
+Doom Emacs uses Evil mode (VIM keybindings) intertwined with most commands stating with ~SPC~ key. Default Emacs keybindings also work in most cases however might result in conflict in some places (not very sure about this; not yet encountered such case). To learn the Doom keybindings, I followed the following links to get started:
+- [[https://github.com/hlissner/doom-emacs/blob/develop/docs/getting_started.org][Getting Started guide for Doom Emacs]]
+- [[https://medium.com/urbint-engineering/emacs-doom-for-newbies-1f8038604e3b][Emacs Doom for Newbies]]
+- [[https://github.com/hlissner/doom-emacs/blob/develop/modules/config/default/+evil-bindings.el][Henrik Lissner's =evil-bindings.el= ]]
+- [[http://vsbabu.org/twenties/doom_emacs_org_0_to_1/][0to1: doom-emacs and org-mode]]
+- [[https://gist.github.com/hjertnes/9e14416e8962ff5f03c6b9871945b165][Eivind Hjertnes' =doom.txt= ]]; Some commands are outdated.
+- [[https://noelwelsh.com/posts/2019-01-10-doom-emacs.html][Doom Emacs Workflows]]
+
+* BASIC SETTINGS
+
+** Lexical scoping
+:PROPERTIES:
+:ID:       f6864335-e9b9-4196-8e66-5b059b28925a
+:END:
+
+See [[https://nullprogram.com/blog/2016/12/22/][this blog post]] about lexical scoping
+#+begin_src emacs-lisp :tangle yes
+;;; ~/.doom.d/config.el -*- lexical-binding: t; -*-
+#+end_src
+
+** Name and Email
+:PROPERTIES:
+:ID:       c0020305-0363-4b53-af7d-ed81677bd899
+:END:
+
+#+begin_src emacs-lisp :tangle yes
+(setq user-full-name "Chaitanya Afle"
+      user-mail-address "aflechaitanya@gmail.com")
+#+end_src
+
+** Rudimentary Settings
+:PROPERTIES:
+:ID:       0dd7aa73-7ac2-4d77-a7b8-a6a8d1728771
+:END:
+
+#+begin_src emacs-lisp :tangle yes
+(setq
+ undo-limit 20000000                    ; Raise undo limit to 20Mb
+ )
+
+(display-time-mode 1)                   ; Enable time display in mode-line
+(setq display-time-day-and-date t)
+(display-time)
+
+(setq display-line-numbers-type t)      ; Enable Relative line numbering display
+
+(defun doom-modeline-conditional-buffer-encoding () ; Remove the encoding display in mode-line unless its not UTF-8
+  (setq-local doom-modeline-buffer-encoding
+              (unless (or (eq buffer-file-coding-system 'utf-8-unix)
+                          (eq buffer-file-coding-system 'utf-8)))))
+(add-hook 'after-change-major-mode-hook
+          'doom-modeline-conditional-buffer-encoding)
+
+
+#+end_src
+
+
+** Full screen Emacs
+:PROPERTIES:
+:ID:       c3a456ea-62d6-47b4-9f55-1113406fd5da
+:END:
+
+#+begin_src emacs-lisp :tangle yes
+(if (eq initial-window-system 'x)                 ; if started by emacs command or desktop file
+    (toggle-frame-maximized)
+  (toggle-frame-fullscreen))
+;; (add-hook 'window-configuration-change-hook
+;;           (lambda ()
+;;             (set-window-margins (car (get-buffer-window-list (current-buffer) nil t)) 8 8)))
+#+end_src
+
+* THEME AND FONT SETTINGS
+:PROPERTIES:
+:ID:       42b105a1-7163-48ec-a500-6974ed7ee257
+:END:
+
+Settings related to fonts within Doom Emacs:
+  - ‘doom-font’ – standard monospace font that is used for most things in Emacs.
+  - ‘doom-variable-pitch-font’ – variable font which is useful in some Emacs plugins.
+  - ‘doom-big-font’ – used in =doom-big-font-mode=; useful for presentations.
+  - ‘font-lock-comment-face’ – for comments.
+  - ‘font-lock-keyword-face’ – for keywords with special significance, like ‘for’ and ‘if’ in C.
+I really like the ~IOSEVKA~ font. Other good one is ~Fira Code~.
+
+#+begin_src emacs-lisp :tangle yes
+
+(setq doom-theme 'doom-one)             ; Set the theme
+
+(setq doom-font (font-spec :family "Iosevka Term SS04" :size 18)
+      doom-variable-pitch-font (font-spec :family "Fira Mono")
+      doom-big-font (font-spec :family "DejaVu Sans Mono" :size 24))
+(after! doom-themes
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t))
+;; (custom-set-faces!
+;;   '(font-lock-comment-face :slant italic)
+;;   '(font-lock-keyword-face :slant italic))
+
+#+end_src
+** FANCY SPLASH SCREEN
+:PROPERTIES:
+:ID:       a40fdb49-cde8-45b4-b62f-cbad28b5af7d
+:END:
+
+Procedure:
+1. Choose an image to display on dashboard. I really like the black hole - it represents both "DOOM" as well as the subject of my scientific research. Hmmm ...
+   Other option could be the circular coffee-stain-inspired (I think) language of the aliens from the movie Arrival (2016).
+3. Go to https://www.remove.bg to make the background transparent. Or, learn how to do it with GNU Gimp.
+4. Resize it so that it fits on dashboard without pushing the dashboard options down.
+5. Invert its colors if necessary (since I am using a dark theme the image should be light).
+
+#+begin_src emacs-lisp :tangle yes
+(add-hook! '(+doom-dashboard-mode-hook)
+         (setq fancy-splash-image "~/.doom.d/images/black_hole.png"))
+        ;; (setq fancy-splash-image "~/.doom.d/images/Time.png"))
+#+end_src
+* ORG
+The gamechanger. The alpha software. Why use anything else, if a simple text file can do everything?
+
+Some references/manuals:
+ - [[https://orgmode.org/manual/][=org-mode= manual]]
+ - [[https://www.orgroam.com/manual.html][=org-roam= manual]]
+
+** Set =org-mode= directories
+
+#+begin_src emacs-lisp :tangle yes
+(setq org-directory "~/org/"
+      org-roam-directory "~/org/"
+      org-ellipsis " ▼ ")
+#+end_src
+
+** Visual fill mode
+
+This centers the text in =org-mode= documents.
+#+begin_src emacs-lisp :tangle yes
+(defun ca/org-mode-visual-fill ()
+  (setq visual-fill-column-width 120
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . ca/org-mode-visual-fill))
+#+end_src
+
+** Org-bullets
+
+#+begin_src emacs-lisp :tangle yes
+(after! org-superstar
+  (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+        org-superstar-prettify-item-bullets t ))
+#+end_src
+
+** Org-roam
+Editing the org-roam-capture-template to remove the timestamp in the filename/nodename. See [[https://github.com/org-roam/org-roam/blob/master/org-roam-capture.el][the github page]] for details on how to create the capture templates.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-roam
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-completion-everywhere t)
+  (org-roam-dailies-directory "daily/")
+  (org-roam-dailies-capture-templates
+   '(("j" "Journal" entry
+      "* %<%I:%M %p>: %?"
+      :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+filetags: Dailies\n\n" ("Journal"))
+      :unnarrowed t)
+     ("i" "Idea" entry
+      "* %<%I:%M %p>: %?"
+      :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+filetags: Dailies\n\n" ("Ideas"))
+      :unnarrowed t)
+     ("t" "Task" entry
+      "** TODO %?"
+      :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+filetags: Dailies\n\n" ("Tasks"))
+      :unnarrowed t)
+     ("r" "Reading" entry
+      "** TODO %?"
+      :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+filetags: Dailies\n\n" ("Reading"))
+      :unnarrowed t)))
+  (org-roam-capture-templates
+        '(("d" "default" plain "%?"
+           :if-new (file+head "misc/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+author: %(concat user-full-name)\n#+email: %(concat user-mail-address)\n#+created: %(format-time-string \"[%Y-%m-%d %H:%M]\")\n#+filetags:%^g\n\n")
+           :unnarrowed t)
+          ("r" "Research" plain "%?"
+           :if-new (file+head "research/${slug}.org" "#+title: ${title}\n#+author: %(concat user-full-name)\n#+email: %(concat user-mail-address)\n#+created: %(format-time-string \"[%Y-%m-%d %H:%M]\")\n#+filetags:%^g\n\n")
+           :unnarrowed t)
+          ("a" "Research note with an attachment" entry "*** %?"
+          :if-new
+          (file+head"research/${slug}.org"
+                    "#+title: ${title}\n#+author: %(concat user-full-name)\n#+email: %(concat user-mail-address)\n#+filetags: notes\n* ${title}\n  :PROPERTIES:\n  :NOTER_DOCUMENT: [[~/org/research/pdfs/%^{pdf_filename}]]\n  :END:\n\n")
+          :unnarrowed t)))
+
+          ;; ("a" "Research note with an attachment" plain "%?"
+          ;; :if-new (file+head "research/${slug}.org" "#+title: ${title}\n#+author: %(concat      user-full-name)\n#+email: %(concat user-mail-address)\n#+file: [[~/org/research/pdfs/%^]]\n#+created: %(format-time-string \"[%Y-%m-%d %H:%M]\")\n#+filetags:%^g\n\n%^{file}")
+          ;; :unnarrowed t)
+          ;))
+  (require 'org-roam-dailies)
+  (require 'org-roam-node)
+  :config
+  (org-roam-setup))
+
+(after! org-roam
+    (setq zot_bib (concat org-roam-directory "/master.bib")))
+#+end_src
+** Org-ref
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-ref
+    :after org-roam
+    :config
+    (setq
+         org-ref-completion-library 'org-ref-ivy-cite
+         org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
+         org-ref-default-bibliography (list zot_bib)
+         ;; org-ref-bibliography-notes (concat org-roam-directory "/bibnotes.org")
+         ;; org-ref-note-title-format "* TODO %y - %t\n :PROPERTIES:\n  :Custom_ID: %k\n  :NOTER_DOCUMENT: %F\n :ROAM_KEY: cite:%k\n  :AUTHOR: %9a\n  :JOURNAL: %j\n  :YEAR: %y\n  :VOLUME: %v\n  :PAGES: %p\n  :DOI: %D\n  :URL: %U\n :END:\n\n"
+         org-ref-notes-directory org-roam-directory
+         org-ref-notes-function 'orb-edit-notes
+))
+#+end_src
+** Helm-bibtex
+#+begin_src emacs-lisp :tangle yes
+(use-package! helm-bibtex
+  :after org-roam
+  :init
+  ; blah blah
+  :config
+  ;blah blah
+  (setq bibtex-format-citation-functions
+      '((org-mode . (lambda (x) (insert (concat
+                                         "\\cite{"
+                                         (mapconcat 'identity x ",")
+                                         "}")) ""))))
+(setq
+      bibtex-completion-pdf-field "file"
+      bibtex-completion-bibliography
+      (list (concat org-roam-directory "/master.bib"))
+      bibtex-completion-library-path (list org-roam-directory)
+      ;; not needed as I take notes in org-roam
+      ; bibtex-completion-notes-path "articles.org"
+))
+
+
+#+end_src
+** Org-roam-bibtex
+orb trial config taken from: https://github.com/emacsbliss/emacs-config/blob/master/config.org
+Delete if it breaks doom
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-roam-bibtex
+  :after org-roam
+  :config
+  (require 'org-ref)
+  (setq orb-preformat-keywords
+   '("citekey" "title" "url" "file" "author-or-editor" "keywords" "date"))
+  (setq orb-file-field-extensions '("pdf" "epub" "html" "mp4" "mp3"))
+  (add-to-list 'org-roam-capture-templates
+        '("b" "Bibliography reference note" entry "*** %?"
+          :if-new
+          (file+head"research/refs/${citekey}.org"
+                    "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+filetags: Reference notes\n* ${title}\n  :PROPERTIES:\n  :Custom_ID: ${citekey}\n  :URL: ${url}\n  :AUTHOR: ${author-or-editor}\n  :NOTER_DOCUMENT: [[${file}]]\n  :NOTER_PAGE:\n  :KEYWORDS: ${keywords}\n  :END:\n\n")
+          :unnarrowed t)))
+(after! org-roam (org-roam-bibtex-mode))
+#+end_src
+** Deft: Note search
+
+Configured only to look in the =org-roam-directory=
+
+#+begin_src emacs-lisp :tangle yes
+(setq deft-directory org-roam-directory)
+(setq deft-recursive t)
+(setq deft-use-filter-string-for-filename t)
+(setq deft-default-extension "org")
+#+end_src
+
+
+* LIST OF THINGS TO ADD/MODIFY IN THIS CONFIG [4/22]
+
+** DONE Setup magit
+Added "+forge" in ~.init.el~
+** DONE Setup the `~/org/` directory structure.
+** TODO Setup the org-agenda and org-super-agenda
+** TODO Calender integration
+** DONE Setup org-roam
+** DONE Bibliography setup org-ref, helm bibtex, zotero integration
+** TODO Make the habit entry for org-roam-daily
+** TODO Setup Ivy, Counsel, deft
+** TODO Setup a method to update the dotfiles repository on github
+Check out some of the tutorials/guides here: https://dotfiles.github.io/tutorials/. Also, the first time I managed to do this was using a ~bare~ git repository: https://www.atlassian.com/git/tutorials/dotfiles. Have to figure out how to use one of the commands using ~magit~.
+*** TODO other dotfiles - .bashrc, .bash_profile, etc.
+** TODO Python environment
+** TODO Read "How to take notes"
+** TODO Make the =org-mode= documents more documents like.
+Increase the header fontsize.
+** TODO TRAMP setup
+** TODO Password manager with Emacs
+** TODO Alfred intergration for org-capture
+** TODO Terminal mode setup
+** TODO Finance management with ledger
+** TODO PDF annotation and org-noter
+** TODO Go through Uncle Dave's emacs to get some useful functions
+** TODO Remove the time and battery display from the touch bar through better touch tools
+** TODO Make a document outlining the most used commands
+** TODO Read http://cachestocaches.com/2020/3/my-organized-life/

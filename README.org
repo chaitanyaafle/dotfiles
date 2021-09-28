@@ -1,0 +1,3 @@
+#+TITLE: Readme
+* Config
+This repository contains the configuration files for `DOOM emacs` and `bash`
