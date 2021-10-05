@@ -290,8 +290,33 @@ Configured only to look in the =org-roam-directory=
 (setq deft-default-extension "org")
 #+end_src
 
+* TRAMP
+Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
+#+begin_src emacs-lisp :tangle yes
+(push
+ (cons
+  "docker"
+  '((tramp-login-program "docker")
+    (tramp-login-args (("exec" "-it") ("%h") ("/bin/bash")))
+    (tramp-remote-shell "/bin/sh")
+    (tramp-remote-shell-args ("-i") ("-c"))))
+ tramp-methods)
 
-* LIST OF THINGS TO ADD/MODIFY IN THIS CONFIG [4/22]
+(defadvice tramp-completion-handle-file-name-all-completions
+  (around dotemacs-completion-docker activate)
+  "(tramp-completion-handle-file-name-all-completions \"\" \"/docker:\" returns
+    a list of active Docker container names, followed by colons."
+  (if (equal (ad-get-arg 1) "/docker:")
+      (let* ((dockernames-raw (shell-command-to-string "docker ps | awk '$NF != \"NAMES\" { print $NF \":\" }'"))
+             (dockernames (cl-remove-if-not
+                           #'(lambda (dockerline) (string-match ":$" dockerline))
+                           (split-string dockernames-raw "\n"))))
+        (setq ad-return-value dockernames))
+    ad-do-it))
+
+#+end_src
+
+* LIST OF THINGS TO ADD/MODIFY IN THIS CONFIG [5/22]
 
 ** DONE Setup magit
 Added "+forge" in ~.init.el~
@@ -300,22 +325,24 @@ Added "+forge" in ~.init.el~
 ** TODO Calender integration
 ** DONE Setup org-roam
 ** DONE Bibliography setup org-ref, helm bibtex, zotero integration
-** TODO Make the habit entry for org-roam-daily
+** TODO [#A] Make the habit entry for org-roam-daily
 ** TODO Setup Ivy, Counsel, deft
-** TODO Setup a method to update the dotfiles repository on github
+** DONE Setup a method to update the dotfiles repository on github
 Check out some of the tutorials/guides here: https://dotfiles.github.io/tutorials/. Also, the first time I managed to do this was using a ~bare~ git repository: https://www.atlassian.com/git/tutorials/dotfiles. Have to figure out how to use one of the commands using ~magit~.
-*** TODO other dotfiles - .bashrc, .bash_profile, etc.
+*** DONE other dotfiles - .bashrc, .bash_profile, etc.
 ** TODO Python environment
 ** TODO Read "How to take notes"
 ** TODO Make the =org-mode= documents more documents like.
 Increase the header fontsize.
 ** TODO TRAMP setup
-** TODO Password manager with Emacs
+https://willschenk.com/articles/2020/tramp_tricks/
+https://writequit.org/denver-emacs/presentations/2017-06-20-tramp.html
+** TODO [#A] Password manager with Emacs
 ** TODO Alfred intergration for org-capture
 ** TODO Terminal mode setup
-** TODO Finance management with ledger
+** TODO [#B] Finance management with ledger
 ** TODO PDF annotation and org-noter
 ** TODO Go through Uncle Dave's emacs to get some useful functions
 ** TODO Remove the time and battery display from the touch bar through better touch tools
-** TODO Make a document outlining the most used commands
+** TODO [#B] Make a document outlining the most used commands
 ** TODO Read http://cachestocaches.com/2020/3/my-organized-life/
