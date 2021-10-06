@@ -133,6 +133,13 @@ Procedure:
          (setq fancy-splash-image "~/.doom.d/images/black_hole.png"))
         ;; (setq fancy-splash-image "~/.doom.d/images/Time.png"))
 #+end_src
+** MODLINE
+#+begin_src emacs-lisp :tangle yes
+(after! doom-modeline
+  (doom-modeline-def-modeline 'main
+    '(bar matches buffer-info remote-host buffer-position parrot selection-info)
+    '(misc-info minor-modes checker input-method buffer-encoding major-mode process vcs "  ")))
+#+end_src
 * ORG
 The gamechanger. The alpha software. Why use anything else, if a simple text file can do everything?
 
@@ -316,7 +323,7 @@ Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
 
 #+end_src
 
-* LIST OF THINGS TO ADD/MODIFY IN THIS CONFIG [5/22]
+* LIST OF THINGS TO ADD/MODIFY IN THIS CONFIG [6/22]
 
 ** DONE Setup magit
 Added "+forge" in ~.init.el~
@@ -334,7 +341,7 @@ Check out some of the tutorials/guides here: https://dotfiles.github.io/tutorial
 ** TODO Read "How to take notes"
 ** TODO Make the =org-mode= documents more documents like.
 Increase the header fontsize.
-** TODO TRAMP setup
+** DONE TRAMP setup
 https://willschenk.com/articles/2020/tramp_tricks/
 https://writequit.org/denver-emacs/presentations/2017-06-20-tramp.html
 ** TODO [#A] Password manager with Emacs

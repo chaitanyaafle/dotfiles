@@ -43,6 +43,11 @@
          (setq fancy-splash-image "~/.doom.d/images/black_hole.png"))
         ;; (setq fancy-splash-image "~/.doom.d/images/Time.png"))
 
+(after! doom-modeline
+  (doom-modeline-def-modeline 'main
+    '(bar matches buffer-info remote-host buffer-position parrot selection-info)
+    '(misc-info minor-modes checker input-method buffer-encoding major-mode process vcs "  ")))
+
 (setq org-directory "~/org/"
       org-roam-directory "~/org/"
       org-ellipsis " ▼ ")
