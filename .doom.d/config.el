@@ -20,6 +20,8 @@
 (add-hook 'after-change-major-mode-hook
           'doom-modeline-conditional-buffer-encoding)
 
+(setq debug-on-error t)
+
 (if (eq initial-window-system 'x)                 ; if started by emacs command or desktop file
     (toggle-frame-maximized)
   (toggle-frame-fullscreen))
@@ -164,6 +166,182 @@
 (setq deft-recursive t)
 (setq deft-use-filter-string-for-filename t)
 (setq deft-default-extension "org")
+
+(setq org-agenda-files (list
+                   (concat org-directory "tasks.org")
+                   (concat org-directory "habits.org")
+                   (concat org-directory "reading.org")))
+
+(setq org-agenda-category-icon-alist
+      `(("work" ,(list (all-the-icons-faicon "briefcase")) nil nil :ascent center)
+        ("laundry" ,(list (all-the-icons-material "local_laundry_service")) nil nil :ascent center)
+        ("archive" ,(list (all-the-icons-faicon "archive")) nil nil :ascent center)
+        ("buy" ,(list (all-the-icons-faicon "shopping-cart")) nil nil :ascent center)
+        ("watch" ,(list (all-the-icons-material "tv")) nil nil :ascent center)
+        ("shower" "~/.doom.d/icons/shower.svg" nil nil :ascent center :mask heuristic)
+        ("clean" "~/.doom.d/icons/broom.svg" nil nil :ascent center :mask heuristic)
+        ("walk" ,(list (all-the-icons-material "directions_walk")) nil nil :ascent center)
+        ("exercise" "~/.doom.d/icons/dumbbell.svg" nil nil :ascent center :mask heuristic)
+        ("sports" "~/.doom.d/icons/futbol.svg" nil nil :ascent center :mask heuristic)
+        ("travel" ,(list (all-the-icons-faicon "plane")) nil nil :ascent center)
+        ("food" "~/.doom.d/icons/utensils.svg" nil nil :ascent center :mask heuristic)
+        ("meeting" "~/.doom.d/icons/handshake.svg" nil nil :ascent center :mask heuristic)
+        ("daily-process" ,(list (all-the-icons-material "replay")) nil nil :ascent center)
+        ("social" ,(list (all-the-icons-faicon "users")) nil nil :ascent center)
+        ("grind" ,(list (all-the-icons-faicon "cogs")) nil nil :ascent center)
+        ("water", (list (all-the-icons-faicon "leaf")) nil nil :ascent center)
+        ("chore" ,(list (all-the-icons-faicon "check-circle")) nil nil :ascent center)
+        ("read" ,(list (all-the-icons-faicon "book")) nil nil :ascent center)))
+(setq org-agenda-hidden-separator "‌‌ ")
+
+(setq org-agenda-block-separator nil)
+
+(setq org-agenda-breadcrumbs-separator " ❱ "
+     org-agenda-current-time-string "ᐊ┈┈┈┈┈┈┈┈┈┈┈ now"
+     org-agenda-time-grid '((weekly today require-timed)
+                            (800 1000 1200 1400 1600 1800 2000)
+                            "---" "┈┈┈┈┈┈┈┈┈┈┈┈┈")
+     org-agenda-prefix-format '((agenda . "%i %-12:c%?-12t%b% s")
+                                (todo . " %i %-12:c")
+                                (tags . " %i %-12:c")
+                                (search . " %i %-12:c")))
+
+;(setq org-agenda-format-date (lambda (date) (concat "\n" (make-string (window-width) 9472)
+;                                                    "\n"
+;                                                    (org-agenda-format-date-aligned date))))
+;(setq org-cycle-separator-lines 2)
+(setq org-agenda-custom-commands
+      '(
+        ("a" "My Agenda"
+         (
+          (agenda "" (
+                      (org-agenda-skip-scheduled-if-done nil)
+                      (org-agenda-time-leading-zero t)
+                      (org-agenda-timegrid-use-ampm nil)
+                      (org-agenda-skip-timestamp-if-done t)
+                      (org-agenda-skip-deadline-if-done t)
+                      (org-agenda-start-day "+0d")
+                      (org-agenda-span 2)
+                      (org-agenda-overriding-header "------------\n  CALENDER \n------------")
+                      (org-agenda-repeating-timestamp-show-all nil)
+                      (org-agenda-remove-tags t)
+                      (org-agenda-prefix-format "   %i %?-2 t%s")
+                      ;; (org-agenda-prefix-format "  %-3i  %-15b%t %s")
+                       ;; (concat "  %-3i  %-15b %t%s" org-agenda-hidden-separator))
+                      ;; (org-agenda-todo-keyword-format " ☐ ")
+                      (org-agenda-todo-keyword-format "")
+                      (org-agenda-time)
+                      (org-agenda-current-time-string "ᐊ┈┈┈┈┈┈┈┈┈┈ NOW")
+                      (org-agenda-breadcrumbs-separator " ❱ ")
+                      (org-agenda-scheduled-leaders '("" ""))
+                      (org-agenda-deadline-leaders '("Deadline:  " "In %3d d.: " "%2d d. ago: "))
+                      (org-agenda-time-grid (quote ((today require-timed remove-match) () "           " "┈┈┈┈┈┈┈┈┈┈┈┈┈")))))
+
+          (tags-todo "-CATEGORY=\"work\"" (
+                      (org-agenda-overriding-header "---------\n  TO DO\n---------")
+                      (org-agenda-sorting-strategy '(priority-down))
+                      (org-agenda-remove-tags t)
+                      ;; (org-agenda-skip-function '(org-agenda-skip-entry-if 'timestamp))
+                      (org-agenda-todo-ignore-scheduled 'all)
+                      (org-agenda-prefix-format "   %-2i %?b")
+                      (org-agenda-todo-keyword-format "")))
+
+         (tags "+project-CATEGORY=\"work\"" (
+                      (org-agenda-overriding-header "------------\n  PROJECTS\n------------")
+                      (org-agenda-remove-tags t)
+                      (org-tags-match-list-sublevels nil)
+                      (org-agenda-show-inherited-tags nil)
+                      (org-agenda-prefix-format "   %-2i %?b %(org-agenda-get-progress)")
+                      (org-agenda-todo-keyword-format "")))
+         ))
+
+      ("w" "Work Agenda"
+         (
+          (agenda "" (
+                      (org-agenda-skip-scheduled-if-done nil)
+                      (org-agenda-time-leading-zero t)
+                      (org-agenda-timegrid-use-ampm nil)
+                      (org-agenda-skip-timestamp-if-done t)
+                      (org-agenda-skip-deadline-if-done t)
+                      (org-agenda-start-day "+0d")
+                      (org-agenda-span 2)
+                      (org-agenda-overriding-header "------------\n  CALENDER \n------------")
+                      (org-agenda-repeating-timestamp-show-all nil)
+                      (org-agenda-remove-tags t)
+                      (org-agenda-prefix-format "   %i %?-2 t%s")
+                      ;; (org-agenda-prefix-format "  %-3i  %-15b%t %s")
+                       ;; (concat "  %-3i  %-15b %t%s" org-agenda-hidden-separator))
+                      ;; (org-agenda-todo-keyword-format " ☐ ")
+                      (org-agenda-todo-keyword-format "")
+                      (org-agenda-time)
+                      (org-agenda-current-time-string "ᐊ┈┈┈┈┈┈┈ NOW")
+                      (org-agenda-scheduled-leaders '("" ""))
+                      (org-agenda-deadline-leaders '("Deadline:  " "In %3d d.: " "%2d d. ago: "))
+                      (org-agenda-time-grid (quote ((today require-timed remove-match) () "      " "┈┈┈┈┈┈┈┈┈┈┈┈┈")))))
+
+          (tags-todo "+CATEGORY=\"work\"" (
+                      (org-agenda-overriding-header "---------\n  TO DO\n---------")
+                      (org-agenda-sorting-strategy '(priority-down))
+                      (org-agenda-remove-tags t)
+                      (org-agenda-todo-ignore-scheduled 'all)
+                      (org-agenda-prefix-format "   %-2i %?b")
+                      (org-agenda-todo-keyword-format "")))
+
+         (tags "+project+CATEGORY=\"work\"" (
+                      (org-agenda-overriding-header "------------\n  PROJECTS\n------------")
+                      (org-agenda-remove-tags t)
+                      (org-tags-match-list-sublevels nil)
+                      (org-agenda-show-inherited-tags nil)
+                      (org-agenda-prefix-format "   %-2i %?b %(org-agenda-get-progress)")
+                      (org-agenda-todo-keyword-format "")))
+         ))
+
+
+("mo" "My Agenda"
+         (
+          (agenda "" (
+                      (org-agenda-skip-scheduled-if-done nil)
+                      (org-agenda-time-leading-zero nil)
+                      (org-agenda-timegrid-use-ampm nil)
+                      (org-agenda-skip-timestamp-if-done t)
+                      (org-agenda-skip-deadline-if-done t)
+                      (org-agenda-start-day "+0d")
+                      (org-agenda-span 3)
+                      (org-agenda-overriding-header "------------\n  CALENDER \n------------")
+                      (org-agenda-repeating-timestamp-show-all nil)
+                      (org-agenda-remove-tags t)
+                      (org-agenda-prefix-format "   %i %?-2 t%s")
+                      ;; (org-agenda-prefix-format "  %-3i  %-15b%t %s")
+                       ;; (concat "  %-3i  %-15b %t%s" org-agenda-hidden-separator))
+                      ;; (org-agenda-todo-keyword-format " ☐ ")
+                      (org-agenda-todo-keyword-format "")
+                      (org-agenda-time)
+                      (org-agenda-current-time-string "ᐊ┈┈┈┈┈┈┈ NOW")
+                      (org-agenda-scheduled-leaders '("" ""))
+                      (org-agenda-deadline-leaders '("Deadline:  " "In %3d d.: " "%2d d. ago: "))
+                      (org-agenda-time-grid nil)))
+
+          (todo "TODO" (
+                      (org-agenda-overriding-header "---------\n  TO DO\n---------")
+                      (org-agenda-sorting-strategy '(priority-down))
+                      (org-agenda-remove-tags t)
+                      ;; (org-agenda-skip-function '(org-agenda-skip-entry-if 'timestamp))
+                      (org-agenda-todo-ignore-scheduled 'all)
+                      (org-agenda-prefix-format "   %-2i %?b")
+                      (org-agenda-todo-keyword-format "")))
+
+          ))
+))
+
+(use-package visual-fill-column
+  :hook (org-super-agenda-mode . ca/org-mode-visual-fill))
+
+
+(add-hook 'org-agenda-mode-hook 'org-super-agenda-mode)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)))
 
 (push
  (cons
