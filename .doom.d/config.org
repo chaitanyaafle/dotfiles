@@ -508,6 +508,13 @@ Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
     ad-do-it))
 
 #+end_src
+* LEDGER
+Inspired in part by [[https://plaintextaccounting.org/][plain text accounting]] , but mostly because of [[https://www.youtube.com/watch?v=9zyp8RF-Fyw][this David Mitchell's soapbox]].
+
+#+begin_src emacs-lisp :tangle yes
+(use-package ledger-mode
+  :mode "\\.ledger\\'")
+#+end_src
 
 * LIST OF THINGS TO ADD/MODIFY IN THIS CONFIG [6/23]
 

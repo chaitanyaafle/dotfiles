@@ -363,3 +363,6 @@
                            (split-string dockernames-raw "\n"))))
         (setq ad-return-value dockernames))
     ad-do-it))
+
+(use-package ledger-mode
+  :mode "\\.ledger\\'")
