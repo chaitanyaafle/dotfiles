@@ -516,12 +516,20 @@ Inspired in part by [[https://plaintextaccounting.org/][plain text accounting]] 
   :mode "\\.ledger\\'")
 #+end_src
 
-* LIST OF THINGS TO ADD/MODIFY IN THIS CONFIG [6/23]
+To update the stock prices every day-ish, I use [[https://github.com/mbhinder/ledger-pricedb][this]] package.
+#+begin_src emacs-lisp :tangle yes
+(load-file "~/.doom.d/ledger-pricedb/ledger-pricedb.el")
+(set 'ledger-pricedb--stocks '("GOOGL" "REVS" "TGT" "JEPI" "AAPL" "SCHD" "VOO" "VNQ" "VYM" "CHPT"))
+(set 'ledger-pricedb--pricedb "~/org/finances/ledger.pricedb")
+
+(global-set-key (kbd "C-c s") (lambda () (interactive) (ledger-pricedb-save-pricedb)))
+#+end_src
+* LIST OF THINGS TO ADD/MODIFY IN THIS CONFIG [8/23]
 
 ** DONE Setup magit
 Added "+forge" in ~.init.el~
 ** DONE Setup the `~/org/` directory structure.
-** TODO Setup the org-agenda and org-super-agenda
+** DONE Setup the org-agenda and org-super-agenda
 ** TODO Calender integration
 ** DONE Setup org-roam
 ** DONE Bibliography setup org-ref, helm bibtex, zotero integration
@@ -540,7 +548,7 @@ https://writequit.org/denver-emacs/presentations/2017-06-20-tramp.html
 ** TODO [#A] Password manager with Emacs
 ** TODO Alfred intergration for org-capture
 ** TODO Terminal mode setup
-** TODO [#B] Finance management with ledger
+** DONE [#B] Finance management with ledger
 ** TODO PDF annotation and org-noter
 ** TODO RSS reader: elfeed
 https://gerlacdt.github.io/posts/emacs-elfeed/

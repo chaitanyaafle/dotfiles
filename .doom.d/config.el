@@ -366,3 +366,9 @@
 
 (use-package ledger-mode
   :mode "\\.ledger\\'")
+
+(load-file "~/.doom.d/ledger-pricedb/ledger-pricedb.el")
+(set 'ledger-pricedb--stocks '("GOOGL" "REVS" "TGT" "JEPI" "AAPL" "SCHD" "VOO" "VNQ" "VYM" "CHPT"))
+(set 'ledger-pricedb--pricedb "~/org/finances/ledger.pricedb")
+
+(global-set-key (kbd "C-c s") (lambda () (interactive) (ledger-pricedb-save-pricedb)))
