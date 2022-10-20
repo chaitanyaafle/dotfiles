@@ -87,7 +87,16 @@ See [[https://nullprogram.com/blog/2016/12/22/][this blog post]] about lexical s
 ;;           (lambda ()
 ;;             (set-window-margins (car (get-buffer-window-list (current-buffer) nil t)) 8 8)))
 #+end_src
+** Spell Check
+#+begin_src emacs-lisp :tangle yes
+(dolist (hook '(org-mode-hook))
+  (add-hook hook (lambda () (flyspell-mode 1))))
 
+(eval-after-load "flyspell"
+  '(progn
+     (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+     (define-key flyspell-mouse-map [mouse-3] #'undefined)))
+#+end_src
 * THEME AND FONT SETTINGS
 :PROPERTIES:
 :ID:       42b105a1-7163-48ec-a500-6974ed7ee257
@@ -161,7 +170,7 @@ Some references/manuals:
 This centers the text in =org-mode= documents.
 #+begin_src emacs-lisp :tangle yes
 (defun ca/org-mode-visual-fill ()
-  (setq visual-fill-column-width 120
+  (setq visual-fill-column-width 180
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -297,6 +306,11 @@ Configured only to look in the =org-roam-directory=
 (setq deft-use-filter-string-for-filename t)
 (setq deft-default-extension "org")
 #+end_src
+** PDF export
+#+begin_src emacs-lisp :tangle yes
+; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+#+end_src
+
 ** Org-agenda and org-super-agenda
 Mostly inpired by https://github.com/hugcis/dotfiles/blob/master/.doom.d/org-config.org and https://www.reddit.com/r/emacs/comments/hnf3cw/my_orgmode_agenda_much_better_now_with_category/.
 
@@ -482,6 +496,21 @@ Notes/Documentation: https://orgmode.org/worg/org-contrib/babel/languages/ob-doc
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((python . t)))
+#+end_src
+** Org-Latex-render
+Taken from https://www.reddit.com/r/emacs/comments/9h44lk/i_can_finally_preview_latex_in_orgmode_took_me/
+Also consider using https://github.com/yangsheng6810/org-latex-impatient
+#+begin_src emacs-lisp :tangle yes
+(defun ca/krofna-hack ()
+  (when (looking-back (rx "C-c C-x C-l"))
+    (save-excursion
+      (backward-char 1)
+      (org-toggle-latex-fragment))))
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (org-cdlatex-mode)
+            (add-hook 'post-self-insert-hook #'ca/krofna-hack 'append 'local)))
 #+end_src
 * TRAMP
 Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd

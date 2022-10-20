@@ -29,6 +29,14 @@
 ;;           (lambda ()
 ;;             (set-window-margins (car (get-buffer-window-list (current-buffer) nil t)) 8 8)))
 
+(dolist (hook '(org-mode-hook))
+  (add-hook hook (lambda () (flyspell-mode 1))))
+
+(eval-after-load "flyspell"
+  '(progn
+     (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+     (define-key flyspell-mouse-map [mouse-3] #'undefined)))
+
 (setq doom-theme 'doom-one)             ; Set the theme
 
 (setq doom-font (font-spec :family "Iosevka Term SS04" :size 18)
@@ -55,7 +63,7 @@
       org-ellipsis " ▼ ")
 
 (defun ca/org-mode-visual-fill ()
-  (setq visual-fill-column-width 120
+  (setq visual-fill-column-width 180
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -166,6 +174,8 @@
 (setq deft-recursive t)
 (setq deft-use-filter-string-for-filename t)
 (setq deft-default-extension "org")
+
+; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
 
 (setq org-agenda-files (list
                    (concat org-directory "tasks.org")
@@ -342,6 +352,17 @@
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((python . t)))
+
+(defun ca/krofna-hack ()
+  (when (looking-back (rx "C-c C-x C-l"))
+    (save-excursion
+      (backward-char 1)
+      (org-toggle-latex-fragment))))
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (org-cdlatex-mode)
+            (add-hook 'post-self-insert-hook #'ca/krofna-hack 'append 'local)))
 
 (push
  (cons
