@@ -89,13 +89,7 @@ See [[https://nullprogram.com/blog/2016/12/22/][this blog post]] about lexical s
 #+end_src
 ** Spell Check
 #+begin_src emacs-lisp :tangle yes
-(dolist (hook '(org-mode-hook))
-  (add-hook hook (lambda () (flyspell-mode 1))))
-
-(eval-after-load "flyspell"
-  '(progn
-     (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
-     (define-key flyspell-mouse-map [mouse-3] #'undefined)))
+(setq ispell-dictionary "en_US")
 #+end_src
 * THEME AND FONT SETTINGS
 :PROPERTIES:
@@ -177,6 +171,16 @@ This centers the text in =org-mode= documents.
 (use-package visual-fill-column
   :hook (org-mode . ca/org-mode-visual-fill))
 #+end_src
+** Time-stamp
+
+#+begin_src emacs-lisp :tangle yes
+(defun ca/timenow ()
+ (interactive)
+ (let ((current-prefix-arg '(16)))
+   (call-interactively 'org-time-stamp-inactive)))
+
+(define-key org-mode-map (kbd "C-c _") 'ca/timenow)
+#+end_src
 
 ** Org-bullets
 
@@ -238,6 +242,10 @@ Editing the org-roam-capture-template to remove the timestamp in the filename/no
 (after! org-roam
     (setq zot_bib (concat org-roam-directory "/master.bib")))
 #+end_src
+
+#+RESULTS:
+: /Users/chaitanya/org//master.bib
+
 ** Org-ref
 #+begin_src emacs-lisp :tangle yes
 (use-package! org-ref
@@ -309,6 +317,11 @@ Configured only to look in the =org-roam-directory=
 ** PDF export
 #+begin_src emacs-lisp :tangle yes
 ; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+(setq org-latex-with-hyperref nil)
+
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-classes '("letter" "\\documentclass{letter}"))
+  )
 #+end_src
 
 ** Org-agenda and org-super-agenda
